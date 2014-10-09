@@ -8,7 +8,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>Hexa a portfolio bootstrap Website Template | Home :: w3layouts</title>
+<title>Hexa a portfolio bootstrap Website Template | Portfolio :: w3layouts</title>
 <!-- Bootstrap -->
 <link href="css/bootstrap.min.css" rel='stylesheet' type='text/css' />
 <link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
@@ -42,6 +42,16 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <!----font-Awesome----->
    	<link rel="stylesheet" href="fonts/css/font-awesome.min.css">
 <!----font-Awesome----->
+<!-- start light_box -->
+<link rel="stylesheet" type="text/css" href="css/jquery.fancybox.css" media="screen" />
+<script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="js/jquery.fancybox-1.2.1.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("div.fancyDemo a").fancybox();
+		});
+	</script>
+
 </head>
 <body>
 <div class="header_bg" id="home"><!-- start header -->
@@ -53,7 +63,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 		<nav class="top-nav">
 			<ul class="top-nav nav_list">
 				<li><a href="portfolio.html">portfolio</a></li>
-				<li class="page-scroll"><a href="#about">About</a></li>
+				<li class="page-scroll"><a href="index.html">About</a></li>
 				<li class="logo page-scroll"><a title="hexa" href="index.html"><img src="images/logo.png" alt="" class="responsive"/></a></li>
 			    <li class="page-scroll"><a href="blog.html">blog</a></li>
 				<li class="page-scroll"><a href="#contact">get in touch</a></li>
@@ -64,63 +74,81 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 	</div>
 </div>
 </div>
-<div class="slider_bg"><!-- start slider -->
-<div class="container">
-		<div class="row slider">
-		<div class="wmuSlider example1"><!-- start wmuSlider example1 -->
-			   <div class="wmuSliderWrapper">
-				   <article style="position: absolute; width: 100%; opacity: 0;"> 
-				  	 	<div class="slider_img text-center">
-				   			<ul class="list-unstyled list_imgs">
-				   				<li><img src="images/slider.jpg" alt="" class="responsive"/></li>
-				   			</ul>
-			           	</div>
-				   </article>
-				   <article style="position: relative; width: 100%; opacity: 1;"> 
-				  	 	<div class="slider_img text-center">
-				   			<ul class="list-unstyled list_imgs">
-				   				<li><img src="images/slider1.jpg" alt="" class="responsive"/></li>
-				   			</ul>
-			           	</div>
-				   </article>
-				 </div>
-                <ul class="wmuSliderPagination">
-                	<li><a href="#" class="">0</a></li>
-                	<li><a href="#" class="">1</a></li>
-                </ul>
-			<script src="js/jquery.wmuSlider.js"></script> 
-		     <script>
-				 $('.example1').wmuSlider();         
-			</script>
-        </div><!-- end wmuSlider example1 -->
-        <div class="clearfix"></div>
-      </div>
-</div>
-</div>
-<div class="main_bg"  id="about"><!-- start about us -->
-<div class="container">
-	<div class="row about">
-		<div class="col-md-3 about_img">
-			<img src="images/user.png" alt="" class="responsive"/>
-		</div>
-		<div class="col-md-9 about_text">
-			<h3>smith anderson</h3>
-			<h4>illustrator & character designer</h4>
-			<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</p>
-			<div class="soc_icons navbar-right">
-				<ul class="list-unstyled text-center">
-					<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-					<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-					<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-					<li><a href="#"><i class="fa fa-pinterest"></i></a></li>
-					<li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-					<li><a href="#"><i class="fa fa-dribbble"></i></a></li>
-				</ul>	
+<div class="container"><!-- start main -->
+	<div class="main row">
+ 	 	<h2 class="style">list of projects</h2>
+	 	 <div class="grids_of_4 row">
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic1.jpg"><img src="images/pic1.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">Lorem Ipsum is simply</a></h3>
+					 <p class="para">There are many variations of passages of Lorem Ipsum available,</p>
+					 <h4><a href="single-page.html">ipsum dolor</a> </h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic2.jpg"><img src="images/pic2.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">long established fact</a></h3>
+					 <p class="para">Our website design and development provides quality web solutions,</p>
+					 <h4><a href="single-page.html">Lorem ipsum</a></h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic3.jpg"><img src="images/pic3.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">Contrary to popular</a></h3>
+					 <p class="para">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do EIUSMOD tempor,</p>
+					 <h4><a href="single-page.html">consectetur lipsum</a></h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic4.jpg"><img src="images/pic4.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">Lorem Ipsum available</a></h3>
+					 <p class="para">There are many variations of passages of Lorem Ipsum available,</p>
+					 <h4><a href="single-page.html">lipsum adipisicing</a></h4>
+				</div>
+				<div class="clear"></div>
 			</div>
-		</div>
+	 	 <div class="grids_of_4 row">
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic5.jpg"><img src="images/pic5.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">long established fact</a></h3>
+					 <p class="para">There are many variations of passages of Lorem Ipsum available,</p>
+					 <h4><a href="single-page.html">ipsum dolor</a> </h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic6.jpg"><img src="images/pic6.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					 <h3><a href="single-page.html">Lorem Ipsum is simply</a></h3>
+					 <p class="para">Our website design and development provides quality web solutions,</p>
+					 <h4><a href="single-page.html">Lorem ipsum</a></h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic7.jpg"><img src="images/pic7.jpg" alt=""class="img-responsive"/></a>
+					</div>
+				     <h3><a href="single-page.html">Lorem Ipsum available</a></h3>
+					 <p class="para">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do EIUSMOD tempor,</p>
+					 <h4><a href="single-page.html">consectetur lipsum</a></h4>
+				</div>
+				<div class="col-md-3 images_1_of_4">
+					<div class="fancyDemo">
+						<a rel="group" title="" href="images/pic8.jpg"><img src="images/pic8.jpg" alt=""class="img-responsive"/></a>
+					</div>
+					  <h3><a href="single-page.html">Contrary to popular</a></h3>
+					 <p class="para">There are many variations of passages of Lorem Ipsum available,</p>
+					 <h4><a href="single-page.html">lipsum adipisicing</a></h4>
+				</div>
+				<div class="clear"></div>
+			</div>
 	</div>
-</div>
-</div>
+</div><!-- end main -->
 <div class="footer_bg" id="contact"><!-- start footer -->
 <div class="container">
 	<div class="row footer">

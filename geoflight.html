@@ -1,0 +1,427 @@
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+.country {
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: .5px;
+  stroke-linejoin: round;
+}
+.hidden { 
+  display: none; 
+}
+.point {
+  fill: #FFEE00;
+  stroke: #FFFFFF;
+  stroke-width: .5px;
+  opacity: 0.5; 
+}
+.airports {
+  fill: #036;
+  stroke: #6cb0e0;
+  stroke-width: 0.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.route {
+  stroke: #FFFFFF;
+  fill: none;
+  stroke-width: 1px;
+}
+#map {
+  width:1580;
+  height:1000;
+  border:2px solid #000;
+  background-color: #333355;
+}
+#barChart {
+  width:1580;
+  height:250;
+  border:2px solid #000;
+  background-color: #FFFFFF;
+}
+div.tooltip {
+  color: #222; 
+  background: #fff; 
+  padding: .5em; 
+  text-shadow: #f5f5f5 0 1px 0;
+  border-radius: 2px; 
+  box-shadow: 0px 0px 2px 0px #a6a6a6; 
+  opacity: 0.9; 
+  position: absolute;
+}
+
+div.capital_name {
+  color: #111;
+  background: #eee;
+  padding: .5em;
+  text-shadow: #f5f5f5 0 1px 0;
+  border-radius: 2px;
+  box-shadow: 0px 0px 2px 0px #a6a6a6;
+  opacity: 0.9;
+  position: absolute;
+}
+.axis path,
+.axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+}
+
+.axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+}
+</style>
+<script src="js/d3/d3.js"></script>
+<script src="js/topojson.js"></script>
+<script src="js/queue.min.js"></script>
+</head>
+<body>
+<h1>
+Data live view
+</h1>
+<div class="content">
+    <div id="map">
+    </div>
+    <div id="barChart">
+    </div>
+</div>
+</body>
+<script>
+var OD_PAIRS = [
+    ["NRT", "JFK"],
+    ["SFO", "NRT"],
+    ["LAX", "HNL"],
+    ["HNL", "NRT"],
+    ["CDG", "JFK"],
+    ["NRT", "SYD"],
+    ["FCO", "PEK"],
+    ["LHR", "PVG"],
+    ["NRT", "ARN"],
+    ["LAX", "JFK"],
+    ["NRT", "DEL"],
+    ["DFW", "GRU"],
+    ["MAD", "ATL"],
+    ["ORD", "CAI"],
+    ["HKG", "CDG"],
+    ["LAS", "CDG"],
+    ["NRT", "SVO"],
+    ["DEN", "HNL"],
+    ["ORD", "LAX"],
+    ["SIN", "SEA"],
+    ["SYD", "PEK"],
+    ["CAI", "CPT"],
+    ["CUN", "JFK"],
+    ["ORD", "JFK"],
+    ["LHR", "BOM"],
+    ["LAX", "MEX"],
+    ["LHR", "CPT"],
+    ["PVG", "CGK"],
+    ["SYD", "BOM"],
+    ["JFK", "CPT"],
+    ["MAD", "GRU"],
+    ["EZE", "FCO"],
+    ["DEL", "DXB"],
+    ["DXB", "NRT"],
+    ["GRU", "MIA"],
+    ["SVO", "PEK"],
+    ["YYZ", "ARN"],
+    ["LHR", "YYC"],
+    ["HNL", "SEA"],
+    ["JFK", "EZE"],
+    ["EZE", "LAX"],
+    ["CAI", "HKG"],
+    ["SVO", "SIN"],
+    ["IST", "MCO"],
+    ["MCO", "LAX"],
+    ["FRA", "LAS"],
+    ["ORD", "FRA"],
+    ["MAD", "JFK"]
+  ];
+
+var width = 1580,
+    height = 1000,
+    height2 = 250;
+
+var padding = 10;
+
+var projection = d3.geo.mercator()
+    .scale(250)
+    .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select("#map").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .call(d3.behavior.zoom()
+        .on("zoom", redraw))
+    .append("g"); 
+
+function redraw() {
+    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+var tooltip = d3.select("#map").append("div")
+    .attr("class", "tooltip");
+
+var capital_name = d3.select("#map").append("div")
+    .attr("class", "capital_name");
+
+var color = d3.scale.category20c();
+
+queue()
+    .defer(d3.json, "resource/world-110m.json")
+    .defer(d3.tsv, "resource/world-country-names.tsv")
+    .defer(d3.json, "resource/capitals.json")
+    .defer(d3.json, "resource/airports.topo.json")
+    .await(ready);
+
+function ready(error, world, names, country_list, airports) {
+    if (error) {
+        return console.error(error);
+    }
+    var countries = topojson.feature(world, world.objects.countries).features;
+    var neighbors = topojson.neighbors(world.objects.countries.geometries);
+    var i = -1;
+    var n = countries.length;
+    
+    countries.forEach(function(d) {
+        var nv_pair_list = names.filter(function(n) {
+            return d.id == n.id;
+        });
+        var country_name;
+        
+        if (nv_pair_list.length == 0) {
+            country_name = "unknown";
+        } else {
+            country_name = nv_pair_list[0].name;
+        }
+        d.name = country_name;
+    });
+    var color = d3.scale.category20c();
+    var country = svg.selectAll(".country").data(countries);
+    
+    country
+        .enter()
+        .insert("path", ".graticule")
+        .attr("class", "country")
+        .attr("title", function(d,i) {
+            return d.name;
+        })
+        .attr("d", path)
+        .style("fill", function(d, i) {
+            return color(d.color = d3.max(neighbors[i], function(n) {
+                return countries[n].color;
+            }) + 1 | 0); });
+     
+    svg.append("path")
+        .datum(topojson.feature(world, world.objects.countries))
+        .attr("class", "boundary")
+        .attr("d", path);
+    
+    country_list.forEach(function(d) {
+        var position = [d.lon,d.lat];
+        var x = projection(position)[0];
+        var y = projection(position)[1];
+        svg.append("svg:circle")
+          .attr("class","point")
+          .attr("cx", x)
+          .attr("cy", y)
+          .attr("r", 1)
+          .on("mousemove", function() {
+              var mouse = d3.mouse(svg.node()).map( function(d) {
+                  return parseInt(d);
+              });
+              
+              tooltip
+                .classed("hidden", false)
+                .attr("style", "left:"+(mouse[0]+25)+"px;top:"+mouse[1]+"px")
+                .html(d.capital)
+          })
+          .on("mouseout",  function() {
+              tooltip.classed("hidden", true)
+          });
+    });
+    
+    svg.append("g")
+       .attr("class", "airports")
+       .selectAll("path")
+       .data(topojson.feature(airports, airports.objects.airports).features)
+       .enter()
+       .append("path")
+       .attr("id", function(d) {return d.id;})
+       .attr("d", path.pointRadius(2));
+    
+    var route_data = [];
+    var svg2 = d3.select("#map").append("svg")
+        .attr("width", width)
+        .attr("height", height2)
+        .append("g");
+    
+    var yAxisPadding = 50;
+    var xAxisPadding = 25;
+    var xScale = d3.scale.ordinal()
+        .domain(d3.range(30))
+        .rangeRoundBands([yAxisPadding, width], 0.05);
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        .ticks(30);
+
+    svg2.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height2 - xAxisPadding) + ")")
+        .call(xAxis);
+    
+    var yScale = d3.scale.linear()
+        .domain([3000, 9000])
+        .range([height2 - xAxisPadding, padding]);
+    
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left")
+        .ticks(5);
+    
+    svg2.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + yAxisPadding + ",0)")
+        .call(yAxis);
+     
+    var greatArc = d3.geo.greatArc();
+    var newID = 0;
+    
+    var key = function(d) {
+        return d.key;
+    };
+    
+    var data_max = 0;
+    var data_min = 100000; 
+    function fly(origin, destination) {
+        var src = airportMap[origin];
+        var tgt = airportMap[destination];
+        
+        var route = svg.append("path")
+            .datum({type: "LineString", coordinates: [src, tgt]})
+            .attr("class", "route")
+            .attr("d", path)
+            .transition()
+            .duration(2000)
+            .style("opacity", 0)
+            .remove();
+        var length = greatArc.distance({source: src, target: tgt}) * 6371;
+        newID = newID + 1;
+        route_data.push({"key": newID, "value": length });
+        
+        if (route_data.length > 30) {
+            route_data.shift();
+        }
+        
+        var tmp = d3.min(route_data, function(d) { return d.value; });
+        
+        if ( tmp < data_min ) {
+            data_min = tmp;
+        }
+        tmp = d3.max(route_data, function(d) { return d.value; });
+        
+        if ( tmp > data_max ) {
+            data_max = tmp;
+        }
+        var xScale = d3.scale.ordinal()
+            .domain(d3.range(30))
+            .rangeRoundBands([yAxisPadding, width], 0.05);
+        var yScale = d3.scale.linear()
+            .domain([data_min, data_max])
+            .range([height2 - padding - xAxisPadding, padding]);
+        var bars = svg2.selectAll("rect").data(route_data, key);
+        
+        bars.enter()
+            .append("rect")
+            .attr("x", function(d) {
+                return width;
+            })
+            .attr("y", function(d) {
+                return height2 - xAxisPadding - yScale(d.value);
+            })
+            .attr("width", xScale.rangeBand())
+            .attr("height", function(d) {
+                return yScale(d.value);
+            })
+            .attr("fill", function(d) {
+                return "rgb(0, 0, 200)";
+            });
+        bars
+            .transition()
+            .duration(100)
+            .attr("x", function(d, i) {
+                return xScale(i);
+            })
+            .attr("y", function(d) {
+                return height2 - xAxisPadding - yScale(d.value);
+            })
+            .attr("width", xScale.rangeBand())
+            .attr("height", function(d) {
+                return yScale(d.value);
+            });
+        bars.exit()
+            .transition()
+            .style("opacity", 0)
+            .remove();
+        svg2.select(".x.axis")
+            .transition()
+            .duration(100)
+            .call(xAxis);
+        svg2.select(".y.axis")
+            .transition()
+            .duration(100)
+            .call(yAxis);
+    }
+    var airportMap = {};
+    var geos = topojson.feature(airports, airports.objects.airports).features;
+     
+    for (i in geos) {
+        airportMap[geos[i].id] = geos[i].geometry.coordinates;
+    }
+    
+    country
+        .on("mousemove", function(d,i) {
+            var mouse = d3.mouse(svg.node()).map( function(d) {
+                return parseInt(d);
+            });
+
+            tooltip
+                .classed("hidden", false)
+                .attr("style", "left:"+(mouse[0]+25)+"px;top:"+mouse[1]+"px")
+                .html(d.name);
+        })
+        .on("mouseout",  function(d,i) {
+            tooltip.classed("hidden", true)
+        });
+    
+    setInterval(function() {
+        if (i > OD_PAIRS.length - 1) {
+            i = 0;
+        }
+        var od = OD_PAIRS[i];
+        fly(od[0], od[1]);
+        i++;
+    }, 150);
+}
+</script>
+</head>
+</html>
